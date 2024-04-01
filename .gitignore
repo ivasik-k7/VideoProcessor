@@ -1,0 +1,9 @@
+# EDITOR RELATED
+.vscode
+
+# INTERNAL OUTPUTS RELATED
+audio-outputs
+content
+downloads
+subtitles
+results
