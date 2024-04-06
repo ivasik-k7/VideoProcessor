@@ -32,12 +32,7 @@ if __name__ == "__main__":
     # Initialize database manager
     database = DatabaseManager("test")
 
-    database.clean()
-
-    database.insert_video(
-        link="https://www.youtube.com/watch?v=gXs8222C3Oo",
-        date="never",
-    )
+    # database.clean()
 
     downloads_directory = os.path.join(pwd, "downloads")
 
@@ -56,14 +51,14 @@ if __name__ == "__main__":
 
     downloaded_files = utils.get_files_in_directory(downloads_directory)
 
+    # for file in downloaded_files:
+    #     filename = os.path.basename(file)
+    #     output_path = os.path.join(content_directory, filename)
+    #     utils.crop_video(file, output_path)
+
+    # content_files = utils.get_files_in_directory(content_directory)
+
     for file in downloaded_files:
-        filename = os.path.basename(file)
-        output_path = os.path.join(content_directory, filename)
-        utils.crop_video(file, output_path)
-
-    content_files = utils.get_files_in_directory(content_directory)
-
-    for file in content_files:
         try:
 
             # Set directories

@@ -1,9 +1,45 @@
-# EDITOR RELATED
-.vscode
+# Byte-compiled / optimized Python files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+test
+
+# Distribution / packaging
+.env
+build/
+dist/
+*.egg-info/
 
 # INTERNAL OUTPUTS RELATED
-audio-outputs
-content
-downloads
-subtitles
-results
+**/audio-outputs/*
+**/content/*
+**/downloads/*
+**/subtitles/*
+**/results/*
+
+# Virtual environments
+venv/
+.env/
+env/
+
+# Development tools
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.pyproj
+*.user
+*.bak
+
+# Other
+*.log
+*.pot
+*.po
+*.mo
+*.bak
+.DS_Store
