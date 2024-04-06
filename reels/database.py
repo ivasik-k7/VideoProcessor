@@ -43,14 +43,6 @@ class DatabaseManager:
         row = self.cursor.fetchone()
         return {"id": row[0], "link": row[1], "date": row[2]} if row else {}
 
-    def update_user_age(self, user_id, new_age):
-        try:
-            self.cursor.execute("UPDATE users SET age=? WHERE id=?", (new_age, user_id))
-            self.conn.commit()
-        except Exception as e:
-            print(ERROR_MESSAGE, str(e))
-            self.conn.rollback()
-
     def delete_video(self, video_id: int) -> None:
         try:
             self.cursor.execute("DELETE FROM videos WHERE id=?", (video_id,))

@@ -122,7 +122,7 @@ def get_file_name_without_extension(file_path: str) -> str:
         If file_path is '/path/to/file.txt', the function returns 'file'.
     """
     file_name_with_extension = os.path.basename(file_path)
-    file_name_without_extension = os.path.splitext(file_name_with_extension)[0]
+    file_name_without_extension = file_name_with_extension.split(".")[0]
     return file_name_without_extension
 
 
@@ -136,6 +136,9 @@ def format_time(seconds: float) -> str:
     Returns:
         str: Formatted time string in the format HH:MM:SS,MMM.
     """
+    sign = "-" if seconds < 0 else ""
+    seconds = abs(seconds)
+
     hours = math.floor(seconds / 3600)
     seconds %= 3600
 
@@ -145,7 +148,7 @@ def format_time(seconds: float) -> str:
     milliseconds = round((seconds - math.floor(seconds)) * 1000)
     seconds = math.floor(seconds)
 
-    formatted_time = f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+    formatted_time = f"{sign}{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
 
     return formatted_time
 

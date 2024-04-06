@@ -1,5 +1,11 @@
 # Reels Project Documentation
 
+<p align="center">
+<img src="https://img.shields.io/badge/coverage-52%25-yellow" alt="Test Coverage" />
+<img src="https://img.shields.io/badge/python-3.11.3-blue" alt="Python Version" />
+<img src="https://github.com/ivasik-k7/reels/actions/workflows/python_ci.yml/badge.svg" />
+<p/>
+
 This documentation outlines the functionalities and workflows of the Reels project.
 
 ## Overview
