@@ -43,3 +43,6 @@ env/
 *.mo
 *.bak
 .DS_Store
+
+# Local Database Related
+**/*.db

@@ -4,14 +4,18 @@
 <img src="https://img.shields.io/badge/coverage-38%25-orange" alt="Test Coverage" />
 <img src="https://img.shields.io/badge/python-3.11.3-blue" alt="Python Version" />
 <img src="https://github.com/ivasik-k7/reels/actions/workflows/python_ci.yml/badge.svg" />
+<img src="https://badgen.net/docker/pulls/ikovtun7/trans_app?icon=docker&label=pulls" alt="Docker Pulls" />
+<img src="https://badgen.net/docker/size/ikovtun7/trans_app?icon=docker&label=image%20size" alt="Docker Image Size" />
+</a>
 <p/>
 
-This documentation outlines the functionalities and workflows of the Reels project.
+This documentation outlines the functionalities and workflows of the project.
 
 ## Overview
 
-The Reels project aims to handle various tasks related to video processing, transcription, translation, and content deployment across different media platforms.
+The Transcription project aims to handle various tasks related to video processing, transcription, translation, and content deployment across different media platforms.
 
+<!--
 ## Features
 
 - **Video Processing:** Downloading, cropping, and processing videos from specified links.
@@ -46,4 +50,4 @@ The Reels project aims to handle various tasks related to video processing, tran
 
 ```python
 python3 main.py
-```
+``` -->

@@ -17,13 +17,15 @@ faster-whisper = "^1.0.1"
 ffmpeg-python = "^0.2.0"
 googletrans = "^3.0.0"
 moviepy = "^1.0.3"
-pytest-cov = "^5.0.0"
 coverage = "^7.4.4"
+sqlmodel = "^0.0.18"
+alembic = "^1.13.1"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
 flake8 = "^7.0.0"
+pytest-cov = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core"]

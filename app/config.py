@@ -22,4 +22,12 @@ class Config:
     )
 
 
+class DatabaseConfig:
+    DATABASE_URL: str = os.environ.get("DATABASE_URL", "sqlite:///database.db")
+    DATABASE_NAME: str = os.environ.get("DATABASE_NAME", "primary")
+    DATABASE_USER: str = os.environ.get("DATABASE_USER", "admin")
+    DATABASE_PASSWORD: str = os.environ.get("DATABASE_USER", "password")
+
+
 config = Config()
+database_config = DatabaseConfig()
