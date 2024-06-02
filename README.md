@@ -13,41 +13,43 @@ This documentation outlines the functionalities and workflows of the project.
 
 ## Overview
 
-The Transcription project aims to handle various tasks related to video processing, transcription, translation, and content deployment across different media platforms.
+This repository provides a tool for generating subtitles with various localizations for video files. It utilizes several components to achieve this, including:
 
-<!--
-## Features
+- **YouTube Downloader**: The `YoutubeButcher` module allows downloading videos from YouTube.
+- **Video Processing**: The `WhisperVideoProcessor` module handles video processing tasks such as extracting audio, transcribing speech, and adding subtitles.
+- **Localization Support**: Subtitles can be generated in different languages by specifying the desired locale.
 
-- **Video Processing:** Downloading, cropping, and processing videos from specified links.
-- **Transcription:** Extracting audio from videos and transcribing them into text.
-- **Translation:** Translating transcribed text into different languages.
-- **Subtitles Generation:** Generating subtitles for videos based on transcribed and translated text.
-- **Content Deployment:** Deploying content to various media platforms such as Instagram, TikTok, and YouTube Shorts.
-- **Watermarking:** Implementing dynamic graphic watermark solutions for videos.
+## Setup
+
+To set up the project, follow these steps:
+
+1. Install the required dependencies listed in `pyproject.toml` using poetry:
+
+   ```shell
+   pip install
+   ```
+
+2. Make sure to configure the paths in the `config.py` file according to your system's directory structure.
 
 ## Usage
 
-1. **Verify SSL Certificate:** Ensure SSL certificate verification.
-2. **Initialize Database:** Initialize and manage the SQLite database.
-3. **Download Videos:** Download videos from specified links.
-4. **Crop Videos:** Crop downloaded videos to desired aspect ratios.
-5. **Extract Audio:** Extract audio from cropped videos.
-6. **Transcribe Audio:** Transcribe audio into text using specified language models.
-7. **Generate Subtitles:** Generate subtitles for videos based on transcribed text.
-8. **Add Subtitles to Videos:** Add subtitles to videos with specified language settings.
-9. **Content Deployment:** Deploy processed content to various media platforms.
-10. **Watermarking:** Implement dynamic graphic watermarking solutions for videos.
+To use the tool, follow these steps:
 
-## Dependencies
+1. Place the video files you want to process in the `downloads_directory`.
+2. Run the script `main.py`.
+3. The script will process each video file found in the `downloads_directory`:
 
-- `reels.transcript`: Handles audio extraction, transcription, translation, and subtitle generation.
-- `reels.utils`: Provides utility functions for file handling, directory management, and video cropping.
-- `reels.certificate`: Handles SSL certificate verification.
-- `reels.butcher`: Handles video downloading from specified links.
-- `reels.database`: Manages SQLite database for storing video metadata.
+- Extract audio from the video.
+- Transcribe the speech in the video to text.
+- Generate subtitles in the specified language.
+- Add subtitles to the video.
 
-## Example Usage
+4. The processed videos with subtitles will be saved in the `results_directory`.
 
-```python
-python3 main.py
-``` -->
+## Localization
+
+To generate subtitles in different languages, set the desired locale in the `main.py` script. For example, to generate subtitles in Ukrainian, set `locale = "uk"`.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

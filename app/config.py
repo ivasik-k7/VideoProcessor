@@ -4,6 +4,8 @@ import os
 class Config:
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+    localization: str = os.environ.get("LOCALE", "uk")
+
     results_directory = os.environ.get(
         "RESULTS_DIR",
         os.path.join(project_root, "results"),

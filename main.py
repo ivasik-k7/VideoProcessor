@@ -9,15 +9,15 @@ if __name__ == "__main__":
     utils.create_directory(config.subtitles_directory)
     utils.create_directory(config.audio_directory)
 
-    locale = "uk"
-
     with utils.DirectoryManager(config.downloads_directory) as files:
         for file in files:
             with WhisperVideoProcessor(file) as processor:
                 audio_filename = processor.extract_audio(config.audio_directory)
 
                 language, segments = processor.transcribe(
-                    audio=audio_filename, model_name="large-v3", language=locale
+                    audio=audio_filename,
+                    model_name="large-v3",
+                    language=config.localization,
                 )
 
                 subtitle_file_path = processor.generate_subtitle_file(

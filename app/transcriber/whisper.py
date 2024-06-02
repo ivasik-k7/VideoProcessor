@@ -167,7 +167,8 @@ class WhisperVideoProcessor:
             stream = ffmpeg.output(
                 video_input_stream,
                 output_video_path,
-                vf=f"subtitles={subtitle_file_path}",
+                # vf=f"subtitles={subtitle_file_path}",
+                vf=f"subtitles={subtitle_file_path}:force_style='FontName=Arial,FontSize=24,PrimaryColour=&Hffffff&'",
             )
 
             self._run_ffmpeg(stream, True)

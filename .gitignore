@@ -19,6 +19,7 @@ dist/
 **/downloads/*
 **/subtitles/*
 **/results/*
+**/audio/**
 
 # Virtual environments
 venv/
