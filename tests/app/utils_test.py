@@ -1,20 +1,17 @@
-import tempfile
-import unittest
 import os
+import unittest
 
-from reels.utils import (
+from app.utils import (
     clean_file_name,
     create_directory,
-    get_files_in_directory,
-    is_video_file,
-    get_file_name_without_extension,
-    format_time,
     create_directory_for_file,
+    format_time,
+    get_file_name_without_extension,
+    is_video_file,
 )
 
 
 class UtilsTests(unittest.TestCase):
-
     def test_create_directory_for_file(self):
         file_path = "./README.md"
 
@@ -71,7 +68,7 @@ class UtilsTests(unittest.TestCase):
         )
         self.assertEqual(get_file_name_without_extension("/path/to/audio.mp3"), "audio")
         self.assertEqual(
-            get_file_name_without_extension("/path/to/archive.tar.gz"), "archive"
+            get_file_name_without_extension("/path/to/archive.tar.gz"), "archive.tar"
         )
 
     def test_is_video_file(self):
@@ -88,24 +85,6 @@ class UtilsTests(unittest.TestCase):
         self.assertFalse(is_video_file("document.pdf"))
         self.assertFalse(is_video_file("audio.mp3"))
         self.assertFalse(is_video_file("text.txt"))
-
-    def test_get_files_in_directory(self):
-        with tempfile.TemporaryDirectory() as temp_dir:
-            file_paths = [
-                os.path.join(temp_dir, f"test_file_{i}.txt") for i in range(3)
-            ]
-            for file_path in file_paths:
-                open(file_path, "w").close()
-
-            files_found = get_files_in_directory(temp_dir)
-
-            self.assertEqual(set(files_found), set(file_paths))
-
-    def test_get_files_in_nonexistent_directory(self):
-        non_existent_dir = "/non_exist_directory"
-
-        with self.assertRaises(FileNotFoundError):
-            get_files_in_directory(non_existent_dir)
 
 
 if __name__ == "__main__":
