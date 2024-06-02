@@ -3,7 +3,7 @@
 <p align="center">
 <img src="https://img.shields.io/badge/coverage-38%25-orange" alt="Test Coverage" />
 <img src="https://img.shields.io/badge/python-3.11.3-blue" alt="Python Version" />
-<img src="https://github.com/ivasik-k7/reels/actions/workflows/python_ci.yml/badge.svg" />
+<img src="https://github.com/ivasik-k7/reels/actions/workflows/tests.yml/badge.svg" />
 <img src="https://badgen.net/docker/pulls/ikovtun7/trans_app?icon=docker&label=pulls" alt="Docker Pulls" />
 <img src="https://badgen.net/docker/size/ikovtun7/trans_app?icon=docker&label=image%20size" alt="Docker Image Size" />
 </a>
