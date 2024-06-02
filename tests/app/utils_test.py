@@ -1,7 +1,9 @@
 import os
+import tempfile
 import unittest
 
 from app.utils import (
+    DirectoryManager,
     clean_file_name,
     create_directory,
     create_directory_for_file,
@@ -85,6 +87,43 @@ class UtilsTests(unittest.TestCase):
         self.assertFalse(is_video_file("document.pdf"))
         self.assertFalse(is_video_file("audio.mp3"))
         self.assertFalse(is_video_file("text.txt"))
+
+
+class TestDirectoryManager(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.TemporaryDirectory()
+
+        self.files = []
+        for i in range(5):
+            file_path = os.path.join(self.test_dir.name, f"file_{i}.txt")
+            with open(file_path, "w") as f:
+                f.write("Test content")
+            self.files.append(file_path)
+
+    def tearDown(self):
+        self.test_dir.cleanup()
+
+    def test_directory_exists(self):
+        with DirectoryManager(self.test_dir.name) as file_paths:
+            self.assertEqual(sorted(file_paths), sorted(self.files))
+
+    def test_directory_does_not_exist(self):
+        with self.assertRaises(FileNotFoundError):
+            with DirectoryManager("non_existent_directory"):
+                pass
+
+    def test_empty_directory(self):
+        empty_dir = tempfile.TemporaryDirectory()
+        with DirectoryManager(empty_dir.name) as file_paths:
+            self.assertEqual(file_paths, [])
+        empty_dir.cleanup()
+
+    def test_directory_with_mixed_content(self):
+        sub_dir = os.path.join(self.test_dir.name, "sub_dir")
+        os.mkdir(sub_dir)
+
+        with DirectoryManager(self.test_dir.name) as file_paths:
+            self.assertEqual(sorted(file_paths), sorted(self.files))
 
 
 if __name__ == "__main__":

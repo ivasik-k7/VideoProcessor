@@ -34,7 +34,7 @@ jobs:
       - name: Run tests and coverage
         run: |
           poetry run pytest
-          poetry run pytest --cov=reels tests/
+          poetry run pytest --cov=app tests/
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v2

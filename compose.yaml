@@ -1,0 +1,12 @@
+services:
+  trans_app:
+    container_name: "trans_app_container"
+    build:
+      context: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1

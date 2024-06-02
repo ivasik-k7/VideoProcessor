@@ -38,10 +38,37 @@ def create_directory(directory: str) -> None:
 
 
 class DirectoryManager:
+    """
+    A context manager for managing directories. It ensures the directory exists
+    and provides a list of file paths within the directory.
+
+    Attributes:
+        directory (str): The path to the directory to be managed.
+
+    Methods:
+        __enter__(): Checks if the directory exists and returns a list of file paths.
+        __exit__(exc_type, exc_value, traceback): Logs any exceptions that occur within the context.
+    """
+
     def __init__(self, directory):
+        """
+        Initializes the DirectoryManager with the given directory path.
+
+        Args:
+            directory (str): The path to the directory to be managed.
+        """
         self.directory = directory
 
     def __enter__(self):
+        """
+        Checks if the directory exists and returns a list of file paths.
+
+        Returns:
+            list: A list of file paths within the directory.
+
+        Raises:
+            FileNotFoundError: If the directory does not exist.
+        """
         if not os.path.exists(self.directory):
             raise FileNotFoundError(f"Directory '{self.directory}' does not exist.")
 
@@ -54,36 +81,16 @@ class DirectoryManager:
         return file_paths
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Logs any exceptions that occur within the context.
+
+        Args:
+            exc_type (type): The exception type.
+            exc_value (Exception): The exception instance.
+            traceback (traceback): The traceback object.
+        """
         if exc_type is not None:
             logger.exception(f"An error occurred: {exc_value}")
-
-
-# def get_files_in_directory(directory: str) -> list:
-#     """
-#     Retrieve a list of file paths within the specified directory.
-
-#     Args:
-#         directory (str): The path of the directory to search.
-
-#     Returns:
-#         list: A list containing the file paths within the directory.
-
-#     Raises:
-#         FileNotFoundError: If the specified directory does not exist.
-#     """
-# if not os.path.exists(directory):
-#     raise FileNotFoundError(f"Directory '{directory}' does not exist.")
-
-# file_paths = []
-# for file_name in os.listdir(directory):
-#     file_path = os.path.join(directory, file_name)
-#     if os.path.isfile(file_path):
-#         file_paths.append(file_path)
-
-#     if not file_paths:
-#         logging.warning(f"No files found in directory '{directory}'.")
-
-#     return file_paths
 
 
 def get_file_name_without_extension(file_path: str) -> str:
