@@ -20,6 +20,7 @@ dist/
 **/subtitles/*
 **/results/*
 **/audio/**
+**/ssml/**
 
 # Virtual environments
 venv/

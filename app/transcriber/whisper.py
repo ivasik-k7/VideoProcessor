@@ -5,6 +5,9 @@ import ffmpeg
 from faster_whisper import WhisperModel
 
 import app.utils as utils
+from app.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class WhisperVideoProcessor:
@@ -34,7 +37,12 @@ class WhisperVideoProcessor:
         self,
         input_path: str,
     ) -> Any:
-        return ffmpeg.input(input_path)
+        try:
+            input_path = input_path.strip(" ").strip('"').strip("\n").strip('"')
+            return ffmpeg.input(input_path, threads=0)
+        except ffmpeg.Error as e:
+            logger.exception("An error occurred:", e.stderr.decode("utf-8"))
+            raise RuntimeError(f"Failed to load audio: {e}")
 
     def _output_audio_stream(
         self,
@@ -49,7 +57,11 @@ class WhisperVideoProcessor:
         stream: Any,
         overwrite_output: bool = True,
     ) -> None:
-        ffmpeg.run(stream, overwrite_output=overwrite_output)
+        try:
+            ffmpeg.run(stream, overwrite_output=overwrite_output)
+        except ffmpeg.Error as e:
+            logger.exception("An error occurred:", e.stderr.decode("utf-8"))
+            raise
 
     def extract_audio(
         self,
@@ -115,19 +127,58 @@ class WhisperVideoProcessor:
 
         utils.create_directory_for_file(subtitle_path)
 
-        text = ""
-        for index, segment in enumerate(segments):
-            segment_start = utils.format_time(segment.start)
-            segment_end = utils.format_time(segment.end)
-            text += f"{str(index+1)} \n"
-            text += f"{segment_start} --> {segment_end} \n"
-            text += f"{segment.text} \n"
-            text += "\n"
-
-        with open(subtitle_path, "w") as f:
-            f.write(text)
+        with open(subtitle_path, "w", encoding="utf-8") as file:
+            for index, segment in enumerate(segments, start=1):
+                start = utils.format_time(segment.start)
+                end = utils.format_time(segment.end)
+                text = segment.text.strip()
+                file.write(f"{index}\n")
+                file.write(f"{start} --> {end}\n")
+                file.write(f"{text}\n\n")
 
         return subtitle_path
+
+    # def resize(self):
+    #     stream = ffmpeg.input(self.input_video_path)
+    #     probe = ffmpeg.probe(self.input_video_path)
+    #     output_path = self.input_video_path.replace(".mp4", "_resized.mp4")
+
+    #     video_stream = next(
+    #         (stream for stream in probe["streams"] if stream["codec_type"] == "video"),
+    #         None,
+    #     )
+    #     if video_stream is None:
+    #         raise ValueError("No video stream found")
+
+    #     width = int(video_stream["width"])
+    #     height = int(video_stream["height"])
+
+    #     if width / height > 9 / 16:
+    #         new_width = width
+    #         new_height = int(width * 16 / 9)
+    #     else:
+    #         new_height = height
+    #         new_width = int(height * 9 / 16)
+
+    #     if new_height % 2 != 0:
+    #         new_height += 1
+    #     if new_width % 2 != 0:
+    #         new_width += 1
+
+    #     # ! TODO : Add dynamic 9:16 aspect ration
+    #     stream = ffmpeg.output(
+    #         stream,
+    #         output_path,
+    #         vcodec="libx264",
+    #         acodec="aac",
+    #         video_bitrate="500k",
+    #         audio_bitrate="128k",
+    #         metadata="author=Ivan Kovtun",
+    #     )
+
+    #     self._run_ffmpeg(stream, True)
+
+    #     return output_path
 
     def add_subtitle_to_video(
         self,
@@ -167,8 +218,7 @@ class WhisperVideoProcessor:
             stream = ffmpeg.output(
                 video_input_stream,
                 output_video_path,
-                # vf=f"subtitles={subtitle_file_path}",
-                vf=f"subtitles={subtitle_file_path}:force_style='FontName=Arial,FontSize=24,PrimaryColour=&Hffffff&'",
+                vf=f"subtitles={subtitle_file_path}:force_style='FontName=Display,FontSize=14,PrimaryColour=&HFFFFFF&,Bold=1'",
             )
 
             self._run_ffmpeg(stream, True)

@@ -23,6 +23,11 @@ class Config:
         os.path.join(project_root, "downloads"),
     )
 
+    ssml_directory = os.environ.get(
+        "SSML_DIR",
+        os.path.join(project_root, "ssml"),
+    )
+
 
 class DatabaseConfig:
     DATABASE_URL: str = os.environ.get("DATABASE_URL", "sqlite:///database.db")
