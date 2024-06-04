@@ -9,12 +9,59 @@ class SSMLConverter:
         voice_name=None,
         duration_attribute_name="duration",
         use_inner_duration_tag=False,
+        service_mode="generic",
+        ssml_version="1.0",
+        language="en-US",
     ):
         self.srt_file = srt_file
         self.output_file = output_file
         self.voice_name = voice_name
         self.duration_attribute_name = duration_attribute_name
         self.use_inner_duration_tag = use_inner_duration_tag
+        # Possible Values: "azure", "amazon-standard-voice", "generic"
+        self.service_mode = service_mode
+        self.ssml_version = ssml_version
+        self.language = language
+
+    @property
+    def voice_tag(self) -> tuple:
+        if (
+            self.voice_name is None
+            or self.voice_name == ""
+            or self.voice_name.lower() == "none"
+        ):
+            opening = ""
+            closing = ""
+        else:
+            opening = '<voice name="' + self.voice_name + '">'
+            closing = "</voice>"
+
+        return opening, closing
+
+    @property
+    def duration_tag(self) -> str:
+        if self.use_inner_duration_tag:
+            if self.service_mode == "azure":
+                return "mstts:audioduration"
+
+    @property
+    def xmlns_attributes(self) -> dict:
+        return {
+            "xmlns": "http://www.w3.org/2001/10/synthesis",
+            "xmlns:mstts": "http://www.w3.org/2001/mstts",
+            "xmlns:emo": "http://www.w3.org/2009/10/emotionml",
+        }
+
+    @property
+    def xmlns_attributes_string(self) -> str:
+        attributes = ""
+        for key, value in self.xmlns_attributes.items():
+            attributes += f'{key}="{value}" '
+        return attributes.strip()
+
+    @property
+    def timeline_regexp(self) -> re.Pattern:
+        return re.compile(r"\d\d:\d\d:\d\d,\d\d\d --> \d\d:\d\d:\d\d,\d\d\d")
 
     def escape_chars(self, text):
         """Escape special characters such as: & " ' < >"""
@@ -25,7 +72,7 @@ class SSMLConverter:
         text = text.replace(">", "&gt;")
         return text
 
-    def parse_srt_file(self):
+    def parse_srt_file(self) -> dict:
         """Parse SRT file and return a dictionary of subtitles"""
         subs_dict = {}
         with open(self.srt_file, "r", encoding="utf-8-sig") as f:
@@ -33,7 +80,8 @@ class SSMLConverter:
 
         for line_num, line in enumerate(lines):
             line = line.strip()
-            if line.isdigit():
+
+            if line.isdigit() and self.timeline_regexp.match(lines[line_num + 1]):
                 time_line = lines[line_num + 1].strip()
                 text_line = lines[line_num + 2].strip()
 
@@ -43,6 +91,7 @@ class SSMLConverter:
                     count += 1
 
                 start_time, end_time = map(lambda x: x.strip(), time_line.split("-->"))
+
                 start_time_ms = sum(
                     int(t) * 10 ** (3 - i * 3)
                     for i, t in enumerate(start_time.replace(",", ":").split(":"))
@@ -51,6 +100,7 @@ class SSMLConverter:
                     int(t) * 10 ** (3 - i * 3)
                     for i, t in enumerate(end_time.replace(",", ":").split(":"))
                 )
+
                 duration_ms = end_time_ms - start_time_ms
 
                 subs_dict[line] = {
@@ -73,29 +123,33 @@ class SSMLConverter:
         with open(self.output_file, "w", encoding="utf-8-sig") as f:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write(
-                '<speak xmlns="http://www.w3.org/2001/10/synthesis" version="1.0" xml:lang="en-US">\n'
+                f'<speak {self.xmlns_attributes_string} version="{self.ssml_version}" xml:lang="{self.language}">\n'
             )
+
+            voice_open, voice_end = self.voice_tag
+
+            if not self.service_mode == "azure":
+                f.write(f"{voice_open}\n")
 
             for _, value in subs_dict.items():
                 text = self.escape_chars(value["text"])
+
                 break_time_string = (
                     f'<break time="{value["break_until_next"]}ms"/>'
-                    if value["break_until_next"]
+                    if value["break_until_next"] or value["break_until_next"] == "0"
                     else ""
                 )
+
                 duration_attribute = (
                     f'{self.duration_attribute_name}="{value["duration_ms"]}ms"'
                 )
 
                 if not self.use_inner_duration_tag:
-                    prosody_tag = f"<prosody {duration_attribute}>{text}</prosody>"
+                    prosody_tag = f'\t<prosody {duration_attribute}="{value["duration_ms"]}ms">{text}</prosody>{break_time_string}\n'
                 else:
-                    duration_tag = f'<mstts:audioduration="{value["duration_ms"]}ms"/>'
-                    prosody_tag = (
-                        f'<voice name="{self.voice_name}">{duration_tag}{text}</voice>'
-                    )
+                    prosody_tag = f'\t{voice_open}<{self.duration_tag}="{value["duration_ms"]}ms"/>{text}{voice_end}{break_time_string}\n'
 
-                f.write(f"\t{prosody_tag}{break_time_string}\n")
+                f.write(prosody_tag)
 
             f.write("</speak>\n")
 
