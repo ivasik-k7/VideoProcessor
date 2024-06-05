@@ -7,6 +7,7 @@ from app.utils import (
     clean_file_name,
     create_directory,
     create_directory_for_file,
+    delete_file,
     format_time,
     get_file_name_without_extension,
     is_video_file,
@@ -14,6 +15,24 @@ from app.utils import (
 
 
 class UtilsTests(unittest.TestCase):
+    def test_existing_file(self):
+        temp_file = "test_file.txt"
+        with open(temp_file, "w") as f:
+            f.write("Test content")
+
+        result = delete_file(temp_file)
+        self.assertTrue(result)
+
+    def test_nonexistent_file(self):
+        result = delete_file("nonexistent_file.txt")
+        self.assertTrue(result)
+
+    def tearDown(self):
+        test_files = ["test_file.txt", "read_only_file.txt"]
+        for file in test_files:
+            if os.path.exists(file):
+                os.remove(file)
+
     def test_create_directory_for_file(self):
         file_path = "./README.md"
 
