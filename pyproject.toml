@@ -21,6 +21,7 @@ coverage = "^7.4.4"
 sqlmodel = "^0.0.18"
 alembic = "^1.13.1"
 gtts = "^2.5.1"
+pika = "^1.3.2"
 
 
 [tool.poetry.group.dev.dependencies]

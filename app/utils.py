@@ -7,6 +7,26 @@ from .logger import get_logger
 logger = get_logger(__name__)
 
 
+def delete_file(file_path):
+    """
+    Deletes a file if it exists.
+
+    Args:
+        file_path (str): Path to the file.
+
+    Returns:
+        bool: True if the file was successfully deleted or didn't exist, False otherwise.
+    """
+    try:
+        os.remove(file_path)
+        return True
+    except FileNotFoundError:
+        return True
+    except OSError as e:
+        print(f"Error deleting {file_path}: {e.strerror}")
+        return False
+
+
 def clean_file_name(title):
     """
     Clean the title to make it safe for use as a file name.

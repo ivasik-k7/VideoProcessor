@@ -11,6 +11,11 @@ if __name__ == "__main__":
     utils.create_directory(config.audio_directory)
     utils.create_directory(config.ssml_directory)
 
+    YoutubeButcher.download_source(
+        source="https://www.youtube.com/watch?v=MGJ1of3gw0k",
+        output_path=config.downloads_directory,
+    )
+
     with utils.DirectoryManager(config.downloads_directory) as files:
         for file in files:
             with WhisperVideoProcessor(file) as processor:
@@ -26,9 +31,11 @@ if __name__ == "__main__":
                     language, segments, config.subtitles_directory
                 )
 
+                ssml_filename = utils.get_file_name_without_extension(file)
+
                 SSMLConverter(
                     srt_file=subtitle_file_path,
-                    output_file=config.ssml_directory + "/ssml.txt",
+                    output_file=config.ssml_directory + f"/{ssml_filename}.txt",
                     voice_name="en-US-DavisNeural",
                 ).convert()
 

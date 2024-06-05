@@ -36,5 +36,13 @@ class DatabaseConfig:
     DATABASE_PASSWORD: str = os.environ.get("DATABASE_USER", "password")
 
 
+class RabbitMQConfig:
+    HOST = os.environ.get("RABBITMQ_HOST", "localhost")
+    PORT = os.environ.get("RABBITMQ_PORT", "5672")
+    USERNAME = os.environ.get("RABBITMQ_USERNAME", "admin")
+    PASSWORD = os.environ.get("RABBIT_MQ_PASSWORD", "secret")
+
+
 config = Config()
 database_config = DatabaseConfig()
+rabbitmq_config = RabbitMQConfig()
