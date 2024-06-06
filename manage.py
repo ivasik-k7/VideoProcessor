@@ -7,7 +7,7 @@ from app.butcher.youtube import YoutubeButcher
 from app.config import config
 from app.rabbitmq import RabbitMQContext
 from app.synthesizer.ssml import SSMLConverter
-from app.transcriber.whisper import WhisperVideoProcessor
+from app.transcriber.video_processor import VideoProcessorContext
 
 logger = utils.get_logger(__name__)
 
@@ -22,7 +22,7 @@ def manage_event(body):
 
     with utils.DirectoryManager(config.downloads_directory) as files:
         for file in files:
-            with WhisperVideoProcessor(file) as processor:
+            with VideoProcessorContext(file) as processor:
                 ssml_filename = utils.get_file_name_without_extension(file)
 
                 audio_file_path = processor.extract_audio(config.audio_directory)
@@ -46,7 +46,7 @@ def manage_event(body):
                 ).convert()
 
                 processor.add_subtitle_to_video(
-                    soft_subtitle=False,
+                    embedded_subtitles=True,
                     subtitle_file_path=subtitle_file_path,
                     subtitle_language=language,
                     output_directory=config.results_directory,

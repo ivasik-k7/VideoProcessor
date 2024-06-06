@@ -40,9 +40,8 @@ class SSMLConverter:
 
     @property
     def duration_tag(self) -> str:
-        if self.use_inner_duration_tag:
-            if self.service_mode == "azure":
-                return "mstts:audioduration"
+        if self.use_inner_duration_tag and self.service_mode == "azure":
+            return "mstts:audioduration"
 
     @property
     def xmlns_attributes(self) -> dict:
@@ -128,7 +127,7 @@ class SSMLConverter:
 
             voice_open, voice_end = self.voice_tag
 
-            if not self.service_mode == "azure":
+            if self.service_mode != "azure":
                 f.write(f"{voice_open}\n")
 
             for _, value in subs_dict.items():

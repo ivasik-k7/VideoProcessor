@@ -14,13 +14,13 @@ dist/
 *.egg-info/
 
 # INTERNAL OUTPUTS RELATED
-**/audio-outputs/*
 **/content/*
 **/downloads/*
 **/subtitles/*
 **/results/*
 **/audio/**
 **/ssml/**
+**/out/**
 
 # Virtual environments
 venv/
@@ -48,3 +48,7 @@ env/
 
 # Local Database Related
 **/*.db
+
+# Dev related
+**/TODO.md
+**/todo.md

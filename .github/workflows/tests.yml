@@ -36,6 +36,9 @@ jobs:
           poetry run pytest
           poetry run pytest --cov=app tests/
 
+      - name: Analyze codebase
+        run: poetry run ruff check app
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v2
         with:

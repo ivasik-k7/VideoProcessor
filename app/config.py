@@ -2,31 +2,46 @@ import os
 
 
 class Config:
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    def __init__(self):
+        self._project_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..")
+        )
 
-    localization: str = os.environ.get("LOCALE", "uk")
+    @property
+    def project_root(self) -> str:
+        return self._project_root
 
-    results_directory = os.environ.get(
-        "RESULTS_DIR",
-        os.path.join(project_root, "results"),
-    )
-    subtitles_directory = os.environ.get(
-        "SUBTITLES_DIR",
-        os.path.join(project_root, "subtitles"),
-    )
-    audio_directory = os.environ.get(
-        "AUDIO_DIR",
-        os.path.join(project_root, "audio"),
-    )
-    downloads_directory = os.environ.get(
-        "DOWNLOADS_DIR",
-        os.path.join(project_root, "downloads"),
-    )
+    @property
+    def localization(self) -> str:
+        """
+        Apply localization to subtitles
+        """
+        return os.environ.get("LOCALE", "pl")
 
-    ssml_directory = os.environ.get(
-        "SSML_DIR",
-        os.path.join(project_root, "ssml"),
-    )
+    @property
+    def results_directory(self) -> str:
+        default = os.path.join(self.project_root, "out/results")
+        return os.environ.get("RESULTS_DIR", default)
+
+    @property
+    def subtitles_directory(self) -> str:
+        default = os.path.join(self.project_root, "out/subtitles")
+        return os.environ.get("SUBTITLES_DIR", default)
+
+    @property
+    def audio_directory(self) -> str:
+        default = os.path.join(self.project_root, "out/audio")
+        return os.environ.get("AUDIO_DIR", default)
+
+    @property
+    def downloads_directory(self) -> str:
+        default = os.path.join(self.project_root, "out/downloads")
+        return os.environ.get("DOWNLOADS_DIR", default)
+
+    @property
+    def ssml_directory(self) -> str:
+        default = os.path.join(self.project_root, "out/ssml")
+        return os.environ.get("SSML_DIR", default)
 
 
 class DatabaseConfig:

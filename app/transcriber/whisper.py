@@ -1,10 +1,10 @@
 import os
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
-import ffmpeg
 from faster_whisper import WhisperModel
 
 import app.utils as utils
+from app.ffmpeg_utils import FFmpegProcessor
 from app.logger import get_logger
 
 logger = get_logger(__name__)
@@ -26,69 +26,69 @@ class WhisperVideoProcessor:
             )
 
         self.input_video_path = input_video_path
+        self.ffmpeg_processor = FFmpegProcessor()
 
-    def __enter__(self):
-        return self
+    @property
+    def input_filename(self) -> str:
+        """Get the filename of the input video file without the extension.
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        pass
-
-    def _ffmpeg_input_stream(
-        self,
-        input_path: str,
-    ) -> Any:
-        try:
-            input_path = input_path.strip(" ").strip('"').strip("\n").strip('"')
-            return ffmpeg.input(input_path, threads=0)
-        except ffmpeg.Error as e:
-            logger.exception("An error occurred:", e.stderr.decode("utf-8"))
-            raise RuntimeError(f"Failed to load audio: {e}")
-
-    def _output_audio_stream(
-        self,
-        stream: Any,
-        extracted_audio: str,
-    ) -> Any:
-        utils.create_directory_for_file(extracted_audio)
-        return ffmpeg.output(stream, extracted_audio)
-
-    def _run_ffmpeg(
-        self,
-        stream: Any,
-        overwrite_output: bool = True,
-    ) -> None:
-        try:
-            ffmpeg.run(stream, overwrite_output=overwrite_output)
-        except ffmpeg.Error as e:
-            logger.exception("An error occurred:", e.stderr.decode("utf-8"))
-            raise
+        Returns:
+            str: The filename of the input video file without the extension.
+        """
+        return utils.get_file_name_without_extension(self.input_video_path)
 
     def extract_audio(
         self,
         output_dir: str = "./",
     ) -> str:
-        input_video_name: str = utils.get_file_name_without_extension(
-            self.input_video_path
-        )
-        extracted_audio = f"{input_video_name}.wav"
-        expected_audio_path = os.path.join(output_dir, extracted_audio)
+        """Extract the audio from the input video and save it as a WAV file.
 
-        stream = self._ffmpeg_input_stream(self.input_video_path)
-        stream = self._output_audio_stream(stream, expected_audio_path)
+        Args:
+            output_dir (str, optional): The directory where the extracted audio file will be saved.
+                Defaults to "./".
 
-        self._run_ffmpeg(stream, True)
+        Returns:
+            str: The path to the extracted audio file.
+        """
+        expected_audio_path = os.path.join(output_dir, f"{self.input_filename}.wav")
+
+        utils.create_directory_for_file(expected_audio_path)
+
+        stream = self.ffmpeg_processor.input(self.input_video_path)
+        stream = self.ffmpeg_processor.output(stream, expected_audio_path)
+
+        self.ffmpeg_processor.run(stream)
 
         return expected_audio_path
 
     def transcribe(
         self,
         audio: str,
-        model_name: str = "small",  # large-v3 | small
+        model_name: str = "small",
         device: str = "cpu",
         compute_type: str = "int8",
         num_workers: int = 1,
         language: str = "en",
-    ) -> Tuple:
+    ) -> Tuple[str, dict]:
+        """
+        Transcribe the audio file using the Whisper model.
+
+        Args:
+            audio (str): The path to the audio file to transcribe.
+            model_name (str, optional): The name of the Whisper model to use. Defaults to "small". Better choose from "large-v3" or "small"
+            device (str, optional): The device to use for inference. Choose from "cpu" or "cuda".
+                Defaults to "cpu".
+            compute_type (str, optional): The precision type for computation. Choose from "int8", "fp16",
+                or "fp32". Defaults to "int8".
+            num_workers (int, optional): The number of workers to use for transcription. Defaults to 1.
+            language (str, optional): The language code for transcription. Defaults to "en" (English).
+
+        Returns:
+            Tuple[str, dict]: A tuple containing the detected language and the transcription segments.
+                The first element is a string representing the detected language code.
+                The second element is a dictionary containing the transcription segments
+                with word timestamps.
+        """
         model = WhisperModel(
             model_name,
             compute_type=compute_type,
@@ -115,14 +115,23 @@ class WhisperVideoProcessor:
         segments: List,
         output_dir: str = "./",
     ) -> str:
-        input_video_name: str = utils.get_file_name_without_extension(
-            self.input_video_path
-        )
+        """Generate a subtitle file from transcription segments.
 
+        Args:
+            language (str): The language of the subtitles.
+            segments (List): A list of transcription segments.
+            output_dir (str, optional): The directory where the subtitle file will be saved. Defaults to "./".
+
+        Returns:
+            str: The path to the generated subtitle file.
+
+        Raises:
+            ValueError: If the segments list is empty.
+        """
         if not segments:
             raise ValueError("Segments list is empty.")
 
-        subtitle_file = f"sub-{input_video_name}.{language}.srt"
+        subtitle_file = f"sub-{self.input_filename}.{language}.srt"
         subtitle_path = os.path.join(output_dir, subtitle_file)
 
         utils.create_directory_for_file(subtitle_path)
@@ -138,73 +147,59 @@ class WhisperVideoProcessor:
 
         return subtitle_path
 
-    # def resize(self):
-    #     stream = ffmpeg.input(self.input_video_path)
-    #     probe = ffmpeg.probe(self.input_video_path)
-    #     output_path = self.input_video_path.replace(".mp4", "_resized.mp4")
-
-    #     video_stream = next(
-    #         (stream for stream in probe["streams"] if stream["codec_type"] == "video"),
-    #         None,
-    #     )
-    #     if video_stream is None:
-    #         raise ValueError("No video stream found")
-
-    #     width = int(video_stream["width"])
-    #     height = int(video_stream["height"])
-
-    #     if width / height > 9 / 16:
-    #         new_width = width
-    #         new_height = int(width * 16 / 9)
-    #     else:
-    #         new_height = height
-    #         new_width = int(height * 9 / 16)
-
-    #     if new_height % 2 != 0:
-    #         new_height += 1
-    #     if new_width % 2 != 0:
-    #         new_width += 1
-
-    #     # ! TODO : Add dynamic 9:16 aspect ration
-    #     stream = ffmpeg.output(
-    #         stream,
-    #         output_path,
-    #         vcodec="libx264",
-    #         acodec="aac",
-    #         video_bitrate="500k",
-    #         audio_bitrate="128k",
-    #         metadata="author=Ivan Kovtun",
-    #     )
-
-    #     self._run_ffmpeg(stream, True)
-
-    #     return output_path
-
     def add_subtitle_to_video(
         self,
-        soft_subtitle: bool,
+        embedded_subtitles: bool,
         subtitle_file_path: str,
         subtitle_language: str,
         output_directory: str = "./",
     ):
-        input_video_name: str = utils.get_file_name_without_extension(
-            self.input_video_path
-        )
+        """Add subtitles to the input video and save the result to an output file.
 
-        video_input_stream = self._ffmpeg_input_stream(self.input_video_path)
-        subtitle_input_stream = self._ffmpeg_input_stream(subtitle_file_path)
+        Args:
+            embedded_subtitles (bool): Whether the subtitles should be embedded directly into the video.
+                If True, the subtitles will be burned into the video. If False, the subtitles will be
+                added as a separate stream.
+            subtitle_file_path (str): The path to the subtitle file.
+            subtitle_language (str): The language of the subtitles.
+            output_directory (str, optional): The directory where the output video will be saved.
+                Defaults to "./".
 
-        output_video_name = f"{input_video_name}.mp4"
-        output_video_path = os.path.join(output_directory, output_video_name)
+        Raises:
+            ValueError: If embedded_subtitles is True but the subtitle file path is invalid.
+            FileNotFoundError: If the input video file or subtitle file does not exist.
+            subprocess.CalledProcessError: If the FFmpeg command fails.
 
+        Note:
+            - If embedded_subtitles is True, the subtitles will be burned into the video using
+            the specified font and style.
+            - If embedded_subtitles is False, the subtitles will be added as a separate stream
+            to the output video file.
+
+        Returns:
+            None
+        """
+        output_video_path = os.path.join(output_directory, f"{self.input_filename}.mp4")
         utils.create_directory_for_file(output_video_path)
 
-        subtitle_track_title = os.path.basename(subtitle_file_path).replace(".srt", "")
+        video_stream = self.ffmpeg_processor.input(self.input_video_path)
+        subtitle_stream = self.ffmpeg_processor.input(subtitle_file_path)
 
-        if soft_subtitle:
-            stream = ffmpeg.output(
-                video_input_stream,
-                subtitle_input_stream,
+        subtitle_track_title = utils.get_file_name_without_extension(subtitle_file_path)
+
+        if embedded_subtitles:
+            stream = self.ffmpeg_processor.output(
+                video_stream,
+                output_video_path,
+                **{
+                    "vf": f"subtitles={subtitle_file_path}:force_style='FontName=Display,FontSize=14,PrimaryColour=&HFFFFFF&,Bold=1'"
+                },
+                # vf=f"subtitles={subtitle_file_path}:force_style='FontName=Display,FontSize=14,PrimaryColour=&HFFFFFF&,Bold=1'"},
+            )
+        else:
+            stream = self.ffmpeg_processor.output(
+                video_stream,
+                subtitle_stream,
                 output_video_path,
                 **{"c": "copy", "c:s": "mov_text"},
                 **{
@@ -213,12 +208,4 @@ class WhisperVideoProcessor:
                 },
             )
 
-            self._run_ffmpeg(stream, True)
-        else:
-            stream = ffmpeg.output(
-                video_input_stream,
-                output_video_path,
-                vf=f"subtitles={subtitle_file_path}:force_style='FontName=Display,FontSize=14,PrimaryColour=&HFFFFFF&,Bold=1'",
-            )
-
-            self._run_ffmpeg(stream, True)
+        self.ffmpeg_processor.run(stream, overwrite_output=True)

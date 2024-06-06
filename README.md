@@ -1,4 +1,4 @@
-# Reels Project Documentation
+# Automation Video Processing
 
 <p align="center">
 <img src="https://img.shields.io/badge/coverage-38%25-orange" alt="Test Coverage" />
@@ -9,47 +9,70 @@
 </a>
 <p/>
 
-This documentation outlines the functionalities and workflows of the project.
-
 ## Overview
 
-This repository provides a tool for generating subtitles with various localizations for video files. It utilizes several components to achieve this, including:
+This project is designed to extract audio from videos downloaded from multiple sources such as YouTube, transcribe the audio with start and end time subtitles, translate subtitles to different languages, and convert subtitle documents into SSML (Speech Synthesis Markup Language) for synthesizing the text and voicing it.
 
-- **YouTube Downloader**: The `YoutubeButcher` module allows downloading videos from YouTube.
-- **Video Processing**: The `WhisperVideoProcessor` module handles video processing tasks such as extracting audio, transcribing speech, and adding subtitles.
-- **Localization Support**: Subtitles can be generated in different languages by specifying the desired locale.
+## Features
+
+**Video Downloading**: Automatically download videos from YouTube.
+
+**Audio Extraction**: Extract audio from downloaded videos.
+
+**Transcription**: Transcribe audio to generate subtitles with start and end times.
+
+**Translation**: Translate subtitles into different languages.
+
+**SSML Conversion**: Convert subtitle files into SSML format for speech synthesis.
+
+**Subtitle Integration**: Add subtitles back to the video.
 
 ## Setup
 
-To set up the project, follow these steps:
+### Prerequisites
 
-1. Install the required dependencies listed in `pyproject.toml` using poetry:
+- Python 3.8 or higher
+- RabbitMQ
+- FFmpeg (for audio extraction and video processing)
+- Poetry
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ivasik-k7/YoutubeTranscriptor.git .
+   ```
+2. Install dependencies and create a virtual environment using Poetry:
 
    ```shell
-   pip install
+   poetry install
    ```
 
-2. Make sure to configure the paths in the `config.py` file according to your system's directory structure.
+3. Set up RabbitMQ on your machine and ensure it is running
+4. Configure the settings in `app/config/config.py` to match your environment.
 
 ## Usage
 
-To use the tool, follow these steps:
+The project listens to a RabbitMQ queue for messages containing the URL of the YouTube video to process.
 
-1. Place the video files you want to process in the `downloads_directory`.
-2. Run the script `main.py`.
-3. The script will process each video file found in the `downloads_directory`:
-
-- Extract audio from the video.
-- Transcribe the speech in the video to text.
-- Generate subtitles in the specified language.
-- Add subtitles to the video.
-
-4. The processed videos with subtitles will be saved in the `results_directory`.
-
-## Localization
-
-To generate subtitles in different languages, set the desired locale in the `main.py` script. For example, to generate subtitles in Ukrainian, set `locale = "uk"`.
+Upon receiving a message, it downloads the video, extracts the audio, transcribes it, generates subtitles, translates them if needed, converts the subtitles to SSML, and integrates the subtitles back into the video.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+## Contribution
+
+We welcome contributions to this project! If you would like to contribute, please follow these steps:
+
+- Fork the repository.
+- Create a new branch (`git checkout -b feature-branch`).
+- Make your changes.
+- Commit your changes (`git commit -m 'Add some feature'`).
+- Push to the branch (git push origin feature-branch).
+- Create a new Pull Request.
+- Please ensure your code follows the project's coding standards and includes appropriate tests.
+
+## Contact
+
+For any questions or inquiries, please contact Ivan Kovtun at ivan.kovtun@capgemini.com.

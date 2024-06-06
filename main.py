@@ -2,7 +2,7 @@ import app.utils as utils
 from app.butcher.youtube import YoutubeButcher  # noqa
 from app.config import config
 from app.synthesizer.ssml import SSMLConverter
-from app.transcriber.whisper import WhisperVideoProcessor
+from app.transcriber.video_processor import VideoProcessorContext
 
 if __name__ == "__main__":
     utils.create_directory(config.downloads_directory)
@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     with utils.DirectoryManager(config.downloads_directory) as files:
         for file in files:
-            with WhisperVideoProcessor(file) as processor:
+            with VideoProcessorContext(file) as processor:
                 audio_filename = processor.extract_audio(config.audio_directory)
 
                 language, segments = processor.transcribe(
@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 # TODO: Include ssml synthesizing into the including completed audio to video
 
                 processor.add_subtitle_to_video(
-                    soft_subtitle=False,
+                    embedded_subtitles=True,
                     subtitle_file_path=subtitle_file_path,
                     subtitle_language=language,
                     output_directory=config.results_directory,
